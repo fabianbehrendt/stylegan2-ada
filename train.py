@@ -466,7 +466,7 @@ def setup_training_options(
         desc += f'-resume{resume}'
         args.resume_pkl = resume_specs[resume] # predefined url
     elif resume == 'latest':
-        desc += '-resumecustom"
+        desc += '-resumecustom'
         pkl, _ = misc.locate_latest_pkl(result_dir)
         args.resume_pkl = pkl # latest pkl in result_dir
     else:
