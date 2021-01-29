@@ -18,7 +18,7 @@ import dnnlib
 import dnnlib.tflib as tflib
 
 from training import training_loop
-from training import dataset
+from training import dataset, misc
 from metrics import metric_defaults
 
 #----------------------------------------------------------------------------
@@ -29,6 +29,9 @@ class UserError(Exception):
 #----------------------------------------------------------------------------
 
 def setup_training_options(
+    # Result directory
+    result_dir = None,
+    
     # General options (not included in desc).
     gpus       = None, # Number of GPUs: <int>, default = 1 gpu
     snap       = None, # Snapshot interval: <int>, default = 50 ticks
@@ -462,6 +465,10 @@ def setup_training_options(
     elif resume in resume_specs:
         desc += f'-resume{resume}'
         args.resume_pkl = resume_specs[resume] # predefined url
+    elif resume == 'latest':
+        desc += '-resumecustom"
+        pkl, _ = misc.locate_latest_pkl(result_dir)
+        args.resume_pkl = pkl # latest pkl in result_dir
     else:
         desc += '-resumecustom'
         args.resume_pkl = resume # custom path or url
@@ -484,7 +491,7 @@ def setup_training_options(
 def run_training(outdir, seed, dry_run, **hyperparam_options):
     # Setup training options.
     tflib.init_tf({'rnd.np_random_seed': seed})
-    run_desc, training_options = setup_training_options(**hyperparam_options)
+    run_desc, training_options = setup_training_options(result_dir=outdir, **hyperparam_options)
 
     # Pick output directory.
     prev_run_dirs = []
